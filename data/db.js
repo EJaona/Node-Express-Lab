@@ -1,5 +1,5 @@
-const knex = require('knex');
-const knexConfig = require('../knexfile.js');
+const knex = require("knex");
+const knexConfig = require("../knexfile.js");
 const db = knex(knexConfig.development);
 
 module.exports = {
@@ -7,31 +7,58 @@ module.exports = {
   findById,
   insert,
   update,
-  remove,
+  remove
 };
 
 function find() {
-  return db('posts');
+  return db("users");
 }
 
 function findById(id) {
-  return db('posts').where({ id: Number(id) });
+  const userID = Number(id);
+
+  if (userID) {
+    return db("users")
+      .where({ id: Number(id) })
+      .first();
+  } else {
+    return Promise.reject({
+      code: 500,
+      message: "The user information could not be retrieved."
+    });
+  }
 }
 
-function insert(post) {
-  return db('posts')
-    .insert(post)
+function insert(user) {
+  return db("users")
+    .insert(user)
     .then(ids => ({ id: ids[0] }));
 }
 
-function update(id, post) {
-  return db('posts')
-    .where('id', Number(id))
-    .update(post);
+function update(id, user) {
+  if (user.name && user.bio) {
+    return db("users")
+      .where("id", Number(id))
+      .update(user);
+  } else {
+    return Promise.reject({
+      code: 400,
+      message: "Please provide name abd bio for the user."
+    });
+  }
 }
 
 function remove(id) {
-  return db('posts')
-    .where('id', Number(id))
-    .del();
+  const userId = id;
+
+  if (userId) {
+    return db("users")
+      .where("id", Number(id))
+      .del();
+  } else {
+    return Promise.reject({
+      code: 500,
+      message: "The user could not be removed"
+    });
+  }
 }
